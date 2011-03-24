@@ -1,0 +1,11 @@
+CHANGE LOG FILE for wpstatic by Ammon Shepherd <ammon.shepherd@gmail.com>
+
+FORMAT
+VERSION  DATE (YYYY-MM-DD)  NAME (if none, it's Ammon)
+
+
+1.2.1  2011-03-24  
+    * Added the EPOCH seconds to the name of the mysql backups so that the
+	original is not overwritten on subsequent attempts at making a static
+	version.
+

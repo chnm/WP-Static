@@ -1,0 +1,17 @@
+Usage: wpstatic [options]
+
+Run the script in the directory where you keep the wp-config.php file.
+This will create a directory with a static version of the WordPress site,
+complete with HTML, CSS, Javascript and images or other media files.
+
+-a Skip everything (database backups, and htaccess check), just generate the static files
+
+-b Skip the first backup of database
+
+-d Skip the second backup of database
+
+-h Show help text
+
+-p Skip changing the permalink and closing comments options in the database
+
+-t Skip check for and changing the .htaccess file
