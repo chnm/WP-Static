@@ -15,3 +15,6 @@ complete with HTML, CSS, Javascript and images or other media files.
 -p Skip changing the permalink and closing comments options in the database
 
 -t Skip check for and changing the .htaccess file
+
+-z Make a zip file of the wp-content, .htaccess, and database files.
+

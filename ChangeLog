@@ -8,4 +8,7 @@ VERSION  DATE (YYYY-MM-DD)  NAME (if none, it's Ammon)
     * Added the EPOCH seconds to the name of the mysql backups so that the
 	original is not overwritten on subsequent attempts at making a static
 	version.
+	* Added option to make a zip file of the wp-content, .htaccess, and
+	database files.
+
 

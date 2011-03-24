@@ -32,11 +32,13 @@ complete with HTML, CSS, Javascript and images or other media files.
 -p Skip changing the permalink and closing comments options in the database
 
 -t Skip check for and changing the .htaccess file
+
+-z Make a zip file of the wp-content, .htaccess, and database files.
 '
 
 
 # Get the options
-while getopts "abdhpt" options; do
+while getopts "abdhptz" options; do
     case $options in
         a ) SKIPALL="true";;
         b ) SKIPDB1="true";;
@@ -45,6 +47,7 @@ while getopts "abdhpt" options; do
             exit 0;;
         p ) SKIPFIX="true";;
         t ) SKIPHT="true";;
+        z ) SKIPZIP="true";;
         \? ) echo "$USAGE"
              exit 1;;
         * ) echo "$USAGE"
@@ -217,3 +220,18 @@ else
     echo "Next run wget --mirror --cut-dirs=$home_cdirs -P $home_static-static -nH -np -p -k -E $home_url"
 fi
 echo
+
+
+if [[ -z "${SKIPALL-}" ]]; then
+    ######################################################################
+    ######      Make a zip file of the wp-contents and dabase backups
+    if [[ -z "${SKIPZIP-}" ]]; then
+        echo "Making archive of wp-content, .htaccess, and database backups."
+        zip -r wp-content.zip wp-content .${db_name}_${tb_prefix}BACKUP-${epsecs}.sql .${db_name}_${tb_prefix}BACKUP2-${epsecs}.sql .htaccess
+        mv wp-content.zip ${home_static}-static
+    fi
+
+fi # end of skip all check
+
+
+exit 0
