@@ -33,12 +33,14 @@ complete with HTML, CSS, Javascript and images or other media files.
 
 -t Skip check for and changing the .htaccess file
 
+-y Non-interactive mode
+
 -z Make a zip file of the wp-content, .htaccess, and database files.
 '
 
 
 # Get the options
-while getopts "abdhptz" options; do
+while getopts "abdhptyz" options; do
     case $options in
         a ) SKIPALL="true";;
         b ) SKIPDB1="true";;
@@ -47,6 +49,7 @@ while getopts "abdhptz" options; do
             exit 0;;
         p ) SKIPFIX="true";;
         t ) SKIPHT="true";;
+        y ) NONINTERACTIVE="true";;
         z ) SKIPZIP="true";;
         \? ) echo "$USAGE"
              exit 1;;
@@ -212,8 +215,13 @@ fi # end of skip all check
 
 echo "Don't forget to change the theme files to limit comment, RSS, meta, and login links, and search fields."
 
-echo -n "Run wget now? [y/n]: "
-read rwget
+if [[ -z "${NONINTERACTIVE-}" ]]; then
+    echo -n "Run wget now? [y/n]: "
+    read rwget
+else
+    rwget="y"
+fi
+
 if [ "y" == $rwget ]; then
     wget --mirror --cut-dirs=$home_cdirs -P $home_static-static -nH -np -p -k -E $home_url
 else
