@@ -33,7 +33,7 @@ complete with HTML, CSS, Javascript and images or other media files.
 
 -t Skip check for and changing the .htaccess file
 
--z Make a zip file of the wp-content, .htaccess, and database files.
+-z Skip creation of a zip file of the wp-content, .htaccess, and database files.
 '
 
 
