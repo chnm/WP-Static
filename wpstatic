@@ -228,6 +228,7 @@ if [[ -z "${SKIPALL-}" ]]; then
     if [[ -z "${SKIPZIP-}" ]]; then
         echo "Making archive of wp-content, .htaccess, and database backups."
         zip -r wp-content.zip wp-content .${db_name}_${tb_prefix}BACKUP-${epsecs}.sql .${db_name}_${tb_prefix}BACKUP2-${epsecs}.sql .htaccess
+        mkdir -p ${home_static}-static
         mv wp-content.zip ${home_static}-static
     fi
 
