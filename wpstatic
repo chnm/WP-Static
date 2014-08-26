@@ -100,7 +100,7 @@ home_url="${home_url%/}/"
 home_path=( $(echo $home_url | cut -d'/' -f4- ) )
 home_static=( $(echo $home_url | awk -F/ '{DZ=NF-1}; END {print $DZ}' ) )
 home_cdirs=( $(echo $home_url | cut -d'/' -f4- | awk -F/ '{print NF-1}' ) )
-if [[ 0 > $home_cdirs ]]; then
+if [[ 0 -gt $home_cdirs ]]; then
     home_cdirs="0"
 fi
 
