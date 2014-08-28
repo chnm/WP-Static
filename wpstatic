@@ -33,7 +33,7 @@ complete with HTML, CSS, Javascript and images or other media files.
 
 -t Skip check for and changing the .htaccess file
 
--z Make a zip file of the wp-content, .htaccess, and database files.
+-z Skip creation of a zip file of the wp-content, .htaccess, and database files.
 '
 
 
@@ -100,7 +100,7 @@ home_url="${home_url%/}/"
 home_path=( $(echo $home_url | cut -d'/' -f4- ) )
 home_static=( $(echo $home_url | awk -F/ '{DZ=NF-1}; END {print $DZ}' ) )
 home_cdirs=( $(echo $home_url | cut -d'/' -f4- | awk -F/ '{print NF-1}' ) )
-if [[ 0 > $home_cdirs ]]; then
+if [[ 0 -gt $home_cdirs ]]; then
     home_cdirs="0"
 fi
 
@@ -228,6 +228,7 @@ if [[ -z "${SKIPALL-}" ]]; then
     if [[ -z "${SKIPZIP-}" ]]; then
         echo "Making archive of wp-content, .htaccess, and database backups."
         zip -r wp-content.zip wp-content .${db_name}_${tb_prefix}BACKUP-${epsecs}.sql .${db_name}_${tb_prefix}BACKUP2-${epsecs}.sql .htaccess
+        mkdir -p ${home_static}-static
         mv wp-content.zip ${home_static}-static
     fi
 
