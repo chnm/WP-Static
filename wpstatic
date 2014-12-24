@@ -92,7 +92,7 @@ cdirs=( $(echo $site_url | cut -d'/' -f4- | awk -F/ '{print NF-1}' ) )
 home_url=( $(mysql -u$sqluser -p$sqlpass -h$db_host $db_name --raw --silent --silent --execute="SELECT option_value FROM ${tb_prefix}options WHERE option_name = 'home' LIMIT 1;") )
 
 # If the home url is empty, set it to the site_url
-if [[ -z "${homeurl-}" ]]; then
+if [[ -z "${home_url-}" ]]; then
     home_url=$site_url
 fi
 
