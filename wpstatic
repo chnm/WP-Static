@@ -70,11 +70,19 @@ path=( $(pwd) )
 sqluser=( $(grep "DB_USER" wp-config.php | sed -r -e "s/^[^']+'.*', '([^']+)'.*/\1/") )
 sqlpass=( $(grep "DB_PASSWORD" wp-config.php | sed -r -e "s/^[^']+'.*', '([^']+)'.*/\1/") )
 db_name=`grep "DB_NAME" wp-config.php | sed -r -e "s/^[^']+'.*', '([^']+)'.*/\1/"`
-db_host=`grep "DB_HOST" wp-config.php | sed -r -e "s/^[^']+'.*', '([^']+)'.*/\1/"`
+db_host_string=`grep "DB_HOST" wp-config.php | sed -r -e "s/^[^']+'.*', '([^']+)'.*/\1/"`
+if [[ $db_host_string == *":"* ]]
+  then
+    db_host=`echo $db_host_string | cut -d : -f 1`
+    db_port=`echo $db_host_string | cut -d : -f 2`
+  else
+    db_host=$db_host_string
+    db_port='3306'
+fi
 tb_prefix=( $(grep "table_prefix" wp-config.php | cut -d";" -f1 | cut -d"=" -f2 | sed -e "s|'||g" -e 's|"||g' -e "s|;||g" -e "s| ||g") )
 
 
-site_url=( $(mysql -u$sqluser -p$sqlpass -h$db_host $db_name --raw --silent --silent --execute="SELECT option_value FROM ${tb_prefix}options WHERE option_name = 'siteurl' LIMIT 1;") )
+site_url=( $(mysql -u$sqluser -p$sqlpass -h$db_host -P$db_port $db_name --raw --silent --silent --execute="SELECT option_value FROM ${tb_prefix}options WHERE option_name = 'siteurl' LIMIT 1;") )
 if [ "$?" -ne 0 ]; then
     echo "Error getting site_url from database. Check the wp-config.php file."
     exit
@@ -89,7 +97,7 @@ static=( $(echo $site_url | awk -F/ '{DZ=NF-1}; END {print $DZ}' ) )
 cdirs=( $(echo $site_url | cut -d'/' -f4- | awk -F/ '{print NF-1}' ) )
 
 # home url needed for the actual URL of the wp install, could be different from the physical location
-home_url=( $(mysql -u$sqluser -p$sqlpass -h$db_host $db_name --raw --silent --silent --execute="SELECT option_value FROM ${tb_prefix}options WHERE option_name = 'home' LIMIT 1;") )
+home_url=( $(mysql -u$sqluser -p$sqlpass -h$db_host -P$db_port $db_name --raw --silent --silent --execute="SELECT option_value FROM ${tb_prefix}options WHERE option_name = 'home' LIMIT 1;") )
 
 # If the home url is empty, set it to the site_url
 if [[ -z "${home_url-}" ]]; then
@@ -108,7 +116,7 @@ fi
 # Check for skipping all backups and changes
 if [[ -z "${SKIPALL-}" ]]; then
 
-    table_list=( $(mysql -u$sqluser -p$sqlpass -h$db_host $db_name --raw --silent --silent --execute="SHOW TABLES;") )
+    table_list=( $(mysql -u$sqluser -p$sqlpass -h$db_host -P$db_port $db_name --raw --silent --silent --execute="SHOW TABLES;") )
     if [ "$?" -ne 0 ]; then
         echo "Error getting list of tables from database. Check results of site_url variable."
         exit
@@ -130,7 +138,7 @@ if [[ -z "${SKIPALL-}" ]]; then
     #####       Create backup of unmolested database
     if [[ -z "${SKIPDB1-}" ]]; then
         echo "Creating backup of MySQL database '$db_name' ..."
-        mysqldump -u $sqluser -p$sqlpass -h$db_host $db_name $tables > .${db_name}_${tb_prefix}BACKUP-${epsecs}.sql
+        mysqldump -u $sqluser -p$sqlpass -h$db_host -P$db_port $db_name $tables > .${db_name}_${tb_prefix}BACKUP-${epsecs}.sql
         if [ "$?" -ne 0 ]; then
             echo "Error making backup of database. Check value of database and user info variables."
             exit
@@ -146,7 +154,7 @@ if [[ -z "${SKIPALL-}" ]]; then
         echo
         echo "Updating permalink structure and public db fields. Closing comments and pings on all posts and pages."
 
-        mysql -u $sqluser -p$sqlpass -h$db_host $db_name --execute="UPDATE ${tb_prefix}options SET option_value = '/%year%/%monthnum%/%day%/%postname%/' WHERE ${tb_prefix}options.option_name = 'permalink_structure' LIMIT 1; UPDATE ${tb_prefix}options SET option_value = 1 WHERE ${tb_prefix}options.option_name = 'blog_public' LIMIT 1; UPDATE ${tb_prefix}posts SET comment_status = 'closed'; UPDATE ${tb_prefix}posts SET ping_status = 'closed';"
+        mysql -u $sqluser -p$sqlpass -h$db_host -P$db_port $db_name --execute="UPDATE ${tb_prefix}options SET option_value = '/%year%/%monthnum%/%day%/%postname%/' WHERE ${tb_prefix}options.option_name = 'permalink_structure' LIMIT 1; UPDATE ${tb_prefix}options SET option_value = 1 WHERE ${tb_prefix}options.option_name = 'blog_public' LIMIT 1; UPDATE ${tb_prefix}posts SET comment_status = 'closed'; UPDATE ${tb_prefix}posts SET ping_status = 'closed';"
         if [ "$?" -ne 0 ]; then
             echo "Error running update commands on database. Check value of database and user info variables."
             exit
@@ -201,7 +209,7 @@ if [[ -z "${SKIPALL-}" ]]; then
     ######      Backup of updated Database
     if [[ -z "${SKIPDB2-}" ]]; then
         echo "Making new backup of database."
-        mysqldump -u $sqluser -p$sqlpass -h$db_host $db_name $tables > .${db_name}_${tb_prefix}BACKUP2-${epsecs}.sql
+        mysqldump -u $sqluser -p$sqlpass -h$db_host -P$db_port $db_name $tables > .${db_name}_${tb_prefix}BACKUP2-${epsecs}.sql
         if [ "$?" -ne 0 ]; then
             echo "Error making second backup copy. Check value of database and user info variables."
             exit
